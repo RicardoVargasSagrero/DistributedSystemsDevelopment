@@ -1,0 +1,164 @@
+--------------------------------------------------------------------------------------------------
+#include "Gusano.h"
+
+int main(int argc, char *argv[]){
+    if(argc != 2){
+		cout << "Forma de uso: " << argv[0] <<" numero_de_gusanos\n";
+		exit(0);
+	}
+    /*Aleatorio*/
+    srand(time(NULL));
+    /*Total gusanos*/
+    int total_gusanos = atoi(argv[1]);
+    int i; //Numero de gusanos
+    int x,n,aleatorio,t;
+    int x1= 10,x2 = 10,y1 = 10 ,y2 = 10;
+    double seno;
+    
+    gfx_open(800, 600, "Ejemplo Micro Animacion GFX");
+    gfx_color(255,255,255);
+    Gusano g_a[total_gusanos];
+    int y;
+    /*for(x = 0; x < 100; x++){
+        for(n = 0; n < total_gusanos; n++){
+            aleatorio = 30 + rand()%(701-1);
+            cout << aleatorio << endl;
+            g_a[n].inicializar(aleatorio);
+            for(y = 0; y < 50;y++){
+                gfx_point(g_a[n].getX(y),g_a[n].getY(y));
+                gfx_flush();
+            }
+            usleep(46000);
+            gfx_clear();
+        }   
+    }*/
+    for(n = 0; n < total_gusanos; n++){
+        aleatorio = 30 + rand()%(501-1);
+        cout << aleatorio << endl;
+        g_a[n].inicializar(aleatorio);
+    }
+    for(n = 0; n < total_gusanos; n++){
+        g_a[n].dibujar();
+    }
+    gfx_flush();
+    usleep(41666);
+    gfx_clear();
+    for(t = 0; t < 300; t++){
+        for(n = 0; n < total_gusanos; n++){
+            g_a[n].movimientoRecto();
+            g_a[n].dibujar();
+        }
+        gfx_flush();
+        gfx_clear();
+        usleep(36000);
+    }
+
+    return 0;   
+}
+------------------------------------------------------------------------------------------------
+#include "Gusano.h"
+#include <iostream>
+using namespace std;
+//La longitud de los gusanos debe ser constante de 50
+Gusano::Gusano(){
+}
+void Gusano::inicializar(int coord){
+    int i; 
+    for(i = 0; i < 50;i++){
+        c[i].setX(coord+i);
+        c[i].setY(coord);
+    }
+}
+int Gusano::getX(int posicion){
+    return c[posicion].obtenerX();
+}
+int Gusano::getY(int posicion){
+    return c[posicion].obtenerY();
+}
+void Gusano::dibujar(){
+    int y = 0;
+    for(y = 0; y < 50;y++){
+        gfx_point(c[y].obtenerX(),c[y].obtenerY());            
+    }
+}
+void Gusano::movimientoRecto(){
+   int i; 
+    for(i = 0; i < 50;i++){
+        c[i].setX(c[i].obtenerX()+1);
+        c[i].setY(c[i].obtenerY());
+    } 
+}
+void setLinea(double xx, double yy){
+    
+}
+--------------------------------------------------------------------------------------------------
+#ifndef GUSANO_H__
+#define GUSANO_H__
+#include "Coordenada.h"
+#include <unistd.h>
+#include <cmath> 
+#include <iostream>
+#include <stdlib.h>
+#include <time.h>
+#include "gfx.h"
+using namespace std;
+class Gusano{
+    private:    
+        Coordenada c[50];
+    public: 
+        Gusano();
+        void inicializar(int);
+        void movimientoRecto();
+        int getX(int);
+        int getY(int);
+        void dibujar();
+        void imprimirCoordenadas();
+        void setCoordenadas(double xx, double yy);
+};
+#endif
+--------------------------------------------------------------------------------------------------
+#include "Coordenada.h"
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+Coordenada::Coordenada(int xx, int yy) : x(xx), y(yy) { }
+void Coordenada::setX(int xx){
+	x = xx;
+}
+void Coordenada::setY(int yy){
+	y = yy;
+}
+int Coordenada::obtenerX(){
+	return x;
+}
+int Coordenada::obtenerY() {
+	return y;
+}
+--------------------------------------------------------------------------------------------------
+#ifndef COORDENADA_H_
+#define COORDENADA_H_
+
+class Coordenada {  
+	private:  
+		int x;
+		int y;
+	public:
+	Coordenada(int = 0, int = 0);
+	void setX(int xx);
+	void setY(int yy);
+	int obtenerX();
+	int obtenerY();
+};
+#endif
+outs: gfx.c animacion.cpp Coordenada.cpp Gusano.cpp
+	gcc gfx.c -c 
+	g++ animacion.cpp -c
+	g++ Coordenada.cpp -c
+	g++ Gusano.cpp -c
+	
+animacion: gfx.o Gusano.o Coordenada.o animacion.cpp
+	g++ gfx.o Gusano.o Coordenada.o animacion.cpp -o animacion.o -lX11
+
+clean:
+	rm *.o
+--------------------------------------------------------------------------------------------------
